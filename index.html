@@ -8,8 +8,8 @@
         body { background: #f5f7fa; color: #333; line-height: 1.6; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.08); padding: 25px; }
         h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 15px; }
-        .tab { overflow: hidden; border-bottom: 1px solid #eee; margin-bottom: 20px; }
-        .tab button { background: #f1f1f1; float: left; border: none; outline: none; cursor: pointer; padding: 12px 20px; transition: 0.3s; font-size: 16px; border-radius: 5px 5px 0 0; margin-right: 5px; }
+        .tab { overflow: hidden; border-bottom: 1px solid #eee; margin-bottom: 20px; display: flex; flex-wrap: wrap; }
+        .tab button { background: #f1f1f1; border: none; outline: none; cursor: pointer; padding: 12px 20px; transition: 0.3s; font-size: 16px; border-radius: 5px 5px 0 0; margin-right: 5px; margin-bottom: 5px; flex: 1; min-width: 120px; }
         .tab button:hover { background: #ddd; }
         .tab button.active { background: #3498db; color: white; }
         .tabcontent { display: none; padding: 15px; animation: fadeEffect 0.5s; }
@@ -18,6 +18,9 @@
         .input-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .unit-container { display: flex; gap: 10px; }
+        .unit-container input { flex: 3; }
+        .unit-container select { flex: 1; }
         button.calculate { background: #3498db; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; transition: background 0.3s; margin-top: 10px; }
         button.calculate:hover { background: #2980b9; }
         .result { background: #e8f4fc; border-left: 4px solid #3498db; padding: 15px; margin-top: 20px; border-radius: 0 5px 5px 0; }
@@ -33,9 +36,11 @@
         <h1>Woodworking Assistant</h1>
         
         <div class="tab">
-            <button class="tablinks active" onclick="openTab(event, 'Cutting')">Cutting Calculator</button>
-            <button class="tablinks" onclick="openTab(event, 'Angles')">Angle Calculator</button>
-            <button class="tablinks" onclick="openTab(event, 'Materials')">Material Estimator</button>
+            <button class="tablinks active" onclick="openTab(event, 'Cutting')">Cutting</button>
+            <button class="tablinks" onclick="openTab(event, 'Angles')">Angles</button>
+            <button class="tablinks" onclick="openTab(event, 'Materials')">Materials</button>
+            <button class="tablinks" onclick="openTab(event, 'BoardFoot')">Board Foot</button>
+            <button class="tablinks" onclick="openTab(event, 'WoodMovement')">Wood Movement</button>
         </div>
 
         <!-- Cutting Optimization Tab -->
@@ -96,6 +101,68 @@
                 </div>
                 <button class="calculate" onclick="estimateMaterials()">Calculate Cost</button>
                 <div id="materialResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- NEW: Board Foot Calculator -->
+        <div id="BoardFoot" class="tabcontent">
+            <div class="calculator">
+                <div class="input-group">
+                    <label>Board Dimensions:</label>
+                    <div class="unit-container">
+                        <input type="number" id="thickness" placeholder="Thickness" min="0.1" step="0.1">
+                        <select id="thicknessUnit">
+                            <option value="in">in</option>
+                            <option value="cm">cm</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="unit-container">
+                        <input type="number" id="width" placeholder="Width" min="0.1" step="0.1">
+                        <select id="widthUnit">
+                            <option value="in">in</option>
+                            <option value="cm">cm</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="unit-container">
+                        <input type="number" id="length" placeholder="Length" min="1" step="1">
+                        <select id="lengthUnit">
+                            <option value="ft">ft</option>
+                            <option value="m">m</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calculate" onclick="calculateBoardFoot()">Calculate Board Feet</button>
+                <div id="boardFootResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- NEW: Wood Movement Calculator -->
+        <div id="WoodMovement" class="tabcontent">
+            <div class="calculator">
+                <div class="input-group">
+                    <label for="boardWidth">Board Width (in):</label>
+                    <input type="number" id="boardWidth" placeholder="e.g., 12" min="1" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="species">Wood Species:</label>
+                    <select id="species">
+                        <option value="pine">Pine</option>
+                        <option value="oak">Oak</option>
+                        <option value="maple">Maple</option>
+                        <option value="cherry">Cherry</option>
+                        <option value="walnut">Walnut</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="humidityChange">Humidity Change (%):</label>
+                    <input type="number" id="humidityChange" placeholder="e.g., 30" min="1" max="100" step="1">
+                </div>
+                <button class="calculate" onclick="calculateWoodMovement()">Calculate Movement</button>
+                <div id="movementResult" class="result"></div>
             </div>
         </div>
 
@@ -200,6 +267,73 @@
                 <p><strong>Total Boards:</strong> ${boardCount}</p>
                 <p><strong>Total Cost:</strong> €${totalCost.toFixed(2)}</p>
                 <p><strong>Project Type:</strong> ${projectType.charAt(0).toUpperCase() + projectType.slice(1)}</p>
+            `;
+        }
+
+        // NEW: Board Foot Calculator Function
+        function calculateBoardFoot() {
+            // Get inputs and units
+            const thickness = parseFloat(document.getElementById("thickness").value);
+            const thicknessUnit = document.getElementById("thicknessUnit").value;
+            const width = parseFloat(document.getElementById("width").value);
+            const widthUnit = document.getElementById("widthUnit").value;
+            const length = parseFloat(document.getElementById("length").value);
+            const lengthUnit = document.getElementById("lengthUnit").value;
+            
+            // Validate inputs
+            if ([thickness, width, length].some(isNaN)) {
+                document.getElementById("boardFootResult").innerHTML = "⚠️ Please fill all dimensions";
+                return;
+            }
+
+            // Convert all to inches/feet (standard board foot units)
+            let t_in = thicknessUnit === "cm" ? thickness / 2.54 : thickness;
+            let w_in = widthUnit === "cm" ? width / 2.54 : width;
+            let l_ft = lengthUnit === "m" ? length * 3.28084 : length;
+
+            // Calculate board feet (thickness(in) * width(in) * length(ft)) / 12
+            const boardFeet = (t_in * w_in * l_ft) / 12;
+            
+            document.getElementById("boardFootResult").innerHTML = `
+                <h3>Board Foot Calculation:</h3>
+                <p><strong>Board Feet:</strong> ${boardFeet.toFixed(2)} BF</p>
+                <p><strong>Total Volume:</strong> ${(boardFeet * 0.00236).toFixed(4)} m³</p>
+                <p class="tip">💡 1 board foot = 144 cubic inches (12" x 12" x 1")</p>
+            `;
+        }
+
+        // NEW: Wood Movement Calculator Function
+        function calculateWoodMovement() {
+            const width = parseFloat(document.getElementById("boardWidth").value);
+            const species = document.getElementById("species").value;
+            const humidityChange = parseFloat(document.getElementById("humidityChange").value);
+            
+            // Validate inputs
+            if (isNaN(width) || isNaN(humidityChange)) {
+                document.getElementById("movementResult").innerHTML = "⚠️ Please enter valid values";
+                return;
+            }
+
+            // Species coefficients (tangential movement per 1% MC change)
+            const coefficients = {
+                pine: 0.0025,
+                oak: 0.0037,
+                maple: 0.0034,
+                cherry: 0.0023,
+                walnut: 0.0028
+            };
+
+            const coef = coefficients[species] || 0.003;
+            const movementInches = width * coef * (humidityChange / 10);
+            const movementMM = movementInches * 25.4;
+            
+            document.getElementById("movementResult").innerHTML = `
+                <h3>Wood Movement Calculation:</h3>
+                <p><strong>Species:</strong> ${species.charAt(0).toUpperCase() + species.slice(1)}</p>
+                <p><strong>Width Change:</strong> ${movementInches.toFixed(3)} in (${movementMM.toFixed(1)} mm)</p>
+                <p><strong>Direction:</strong> ${humidityChange > 0 ? 'Expansion' : 'Contraction'}</p>
+                <p class="tip">⚠️ Allow for this movement in your joinery!</p>
+                <p><strong>Technical:</strong> Coefficient = ${coef} in/in per 10% MC change</p>
             `;
         }
     </script>
